@@ -1,0 +1,58 @@
+
+é¿çsó·
+--------------------------------------------------
+Elapsed Time: 0.0
+n: 1, Count: 1, Average Height: 0.0, Variance of Height: 0.0
+n: 1, AVL Tree Count: 1, Average Height of AVL Tree: 0.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.0020055770874023438
+n: 2, Count: 1, Average Height: 1.0, Variance of Height: 0.0
+n: 2, AVL Tree Count: 1, Average Height of AVL Tree: 1.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.008025646209716797
+n: 3, Count: 5, Average Height: 1.8, Variance of Height: 0.16
+n: 3, AVL Tree Count: 1, Average Height of AVL Tree: 1.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.010026216506958008
+n: 4, Count: 7, Average Height: 2.5714285714285716, Variance of Height: 0.24489795918367346
+n: 4, AVL Tree Count: 2, Average Height of AVL Tree: 2.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.012033224105834961
+n: 5, Count: 42, Average Height: 3.238095238095238, Variance of Height: 0.4671201814058956
+n: 5, AVL Tree Count: 6, Average Height of AVL Tree: 2.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.01407313346862793
+n: 6, Count: 66, Average Height: 3.878787878787879, Variance of Height: 0.6519742883379246
+n: 6, AVL Tree Count: 2, Average Height of AVL Tree: 2.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.02973198890686035
+n: 7, Count: 429, Average Height: 4.470862470862471, Variance of Height: 0.878521633766389
+n: 7, AVL Tree Count: 17, Average Height of AVL Tree: 2.9411764705882355, Variance of Height of AVL Tree: 0.05536332179930795
+--------------------------------------------------
+Elapsed Time: 0.057539939880371094
+n: 8, Count: 715, Average Height: 5.030769230769231, Variance of Height: 1.1291231845078
+n: 8, AVL Tree Count: 16, Average Height of AVL Tree: 3.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.23408007621765137
+n: 9, Count: 4862, Average Height: 5.562731386260798, Variance of Height: 1.3920952133258857
+n: 9, AVL Tree Count: 44, Average Height of AVL Tree: 3.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 0.5606310367584229
+n: 10, Count: 8398, Average Height: 6.071207430340557, Variance of Height: 1.6665179753103538
+n: 10, AVL Tree Count: 30, Average Height of AVL Tree: 3.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 3.0562973022460938
+n: 11, Count: 58786, Average Height: 6.558058041030177, Variance of Height: 1.9558797656918996
+n: 11, AVL Tree Count: 70, Average Height of AVL Tree: 3.0, Variance of Height of AVL Tree: 0.0
+--------------------------------------------------
+Elapsed Time: 7.8390583992004395
+n: 12, Count: 104006, Average Height: 7.026267715324116, Variance of Height: 2.257295123374945
+n: 12, AVL Tree Count: 92, Average Height of AVL Tree: 3.6956521739130435, Variance of Height of AVL Tree: 0.2117202268431002
+--------------------------------------------------
+Elapsed Time: 48.197643756866455
+n: 13, Count: 742900, Average Height: 7.477964732803876, Variance of Height: 2.56806068471665
+n: 13, AVL Tree Count: 476, Average Height of AVL Tree: 3.9411764705882355, Variance of Height of AVL Tree: 0.05536332179930795
+--------------------------------------------------
+Elapsed Time: 121.2917160987854
+n: 14, Count: 1337220, Average Height: 7.91477542962265, Variance of Height: 2.8875872833651273
+n: 14, AVL Tree Count: 436, Average Height of AVL Tree: 3.9908256880733943, Variance of Height of AVL Tree: 0.00909014392727885
