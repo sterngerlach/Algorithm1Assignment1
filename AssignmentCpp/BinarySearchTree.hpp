@@ -48,7 +48,7 @@ protected:
     virtual bool IsAVLTreeHelper(Node<TKey, TData>* pNode) const;
     virtual void ToStringHelper(std::ostringstream& strStream, Node<TKey, TData>* pNode) const;
 
-private:
+protected:
     Node<TKey, TData>* mRoot;
 };
 
@@ -60,7 +60,8 @@ private:
 template <typename TKey, typename TData>
 CBinarySearchTree<TKey, TData>::~CBinarySearchTree()
 {
-    this->Destroy();
+    if (this->mRoot)
+        this->Destroy();
 }
 
 // 指定されたキーを持つノードを2分探索木の中から探索

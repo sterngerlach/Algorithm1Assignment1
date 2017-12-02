@@ -3,11 +3,13 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="BinarySearchTreeEx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BinarySearchTree.hpp" />
     <ClInclude Include="Node.hpp" />
     <ClInclude Include="Utility.hpp" />
+    <ClInclude Include="BinarySearchTreeEx.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Result.txt" />
