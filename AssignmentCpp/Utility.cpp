@@ -16,6 +16,21 @@ namespace Algorithm1Assignment1 {
 
 namespace Cpp {
 
+// カタラン数の計算
+int CatalanNumber(int n)
+{
+    if (n <= 1) {
+        return 1;
+    } else {
+        int result = 0;
+
+        for (int k = 0; k < n; ++k)
+            result += CatalanNumber(k) * CatalanNumber(n - k - 1);
+
+        return result;
+    }
+}
+
 // ランダムな1からnまでの自然数の順列を生成
 std::vector<int> GenerateRandomPermutation(int n)
 {
@@ -160,8 +175,9 @@ void GenerateDataSequencesHelper(
         for (auto& leftTree : leftTrees) {
             for (auto& rightTree : rightTrees) {
                 std::vector<int> generatedTree;
-                generatedTree.reserve(leftTree.size() + rightTree.size() + 1U);
-
+                generatedTree.reserve(end - start + 1);
+                // generatedTree.reserve(leftTree.size() + rightTree.size() + 1U);
+                
                 generatedTree.push_back(i);
 
                 std::copy(std::begin(leftTree), std::end(leftTree), std::back_inserter(generatedTree));
@@ -169,6 +185,7 @@ void GenerateDataSequencesHelper(
 
                 // generatedTree.insert(std::end(generatedTree), std::begin(leftTree), std::end(leftTree));
                 // generatedTree.insert(std::end(generatedTree), std::begin(rightTree), std::end(rightTree));
+
                 binarySearchTrees.push_back(std::move(generatedTree));
             }
         }
@@ -452,7 +469,7 @@ void CalculateBinarySearchTreeHeight2MultiThreaded(
 
     // スレッド数
     const unsigned int numOfThreads = std::thread::hardware_concurrency();
-
+    
     std::vector<std::thread> calcThreads;
     calcThreads.reserve(numOfThreads);
 
@@ -475,13 +492,14 @@ void CalculateBinarySearchTreeHeight2MultiThreaded(
             std::vector<int> tmpHeightOfAVLTree;
             int tmpNumOfBinarySearchTree = 0;
             int tmpNumOfAVLTree = 0;
+            int treeHeight;
 
             for (unsigned int i = beginIndex; i < endIndex; ++i) {
                 // 2分探索木にデータを追加
                 for (const auto n : dataSequences[i])
                     tmpBinarySearchTree.Insert(n);
 
-                int treeHeight = tmpBinarySearchTree.Height();
+                treeHeight = tmpBinarySearchTree.Height();
                 tmpHeightOfTree.push_back(treeHeight);
                 ++tmpNumOfBinarySearchTree;
 
@@ -533,6 +551,8 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
     std::vector<int> heightOfTree;
     std::vector<int> heightOfAVLTree;
 
+    // heightOfTree.reserve((dataCount % 2 == 0) ? CatalanNumber(dataCount) / 2 : CatalanNumber(dataCount));
+
     // スレッド数
     const unsigned int numOfThreads = std::thread::hardware_concurrency();
 
@@ -542,7 +562,7 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
     std::mutex mutex;
     unsigned int minRootNodeValue = 0;
     unsigned int maxRootNodeValue = 0;
-    int maxDataCount = (dataCount % 2 == 0) ? dataCount / 2 : dataCount;
+    unsigned int maxDataCount = (dataCount % 2 == 0) ? dataCount / 2 : dataCount;
 
     // スレッドの生成
     for (unsigned int i = 0; i < numOfThreads; ++i) {
@@ -561,6 +581,7 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
             std::vector<int> tmpHeightOfAVLTree;
             int tmpNumOfBinarySearchTree = 0;
             int tmpNumOfAVLTree = 0;
+            int treeHeight;
 
             // 入力データ列の生成
             for (int i = minRootNodeValue; i <= maxRootNodeValue; ++i) {
@@ -583,7 +604,7 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
                         for (const auto n : rightTree)
                             tmpBinarySearchTree.Insert(n);
 
-                        int treeHeight = tmpBinarySearchTree.Height();
+                        treeHeight = tmpBinarySearchTree.Height();
                         tmpHeightOfTree.push_back(treeHeight);
                         ++tmpNumOfBinarySearchTree;
 

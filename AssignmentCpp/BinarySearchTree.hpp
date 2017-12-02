@@ -31,8 +31,8 @@ public:
     virtual ~CBinarySearchTree();
 
     Node<TKey, TData>* Search(const TKey& targetKey) const;
-    CBinarySearchTree& Insert(const TKey& key, const TData& data = TData());
-    CBinarySearchTree& Remove(const TKey& key);
+    void Insert(const TKey& key, const TData& data = TData());
+    void Remove(const TKey& key);
     void Destroy();
     int Height() const;
     bool IsAVLTree() const;
@@ -74,20 +74,18 @@ Node<TKey, TData>* CBinarySearchTree<TKey, TData>::Search(
 
 // 指定されたキーとデータを持つノードを作成して2分探索木に挿入
 template <typename TKey, typename TData>
-CBinarySearchTree<TKey, TData>& CBinarySearchTree<TKey, TData>::Insert(
+void CBinarySearchTree<TKey, TData>::Insert(
     const TKey& key, const TData& data)
 {
     this->InsertHelper(key, data, this->mRoot);
-    return *this;
 }
 
 // 指定されたキーを持つノードを2分探索木から削除
 template <typename TKey, typename TData>
-CBinarySearchTree<TKey, TData>& CBinarySearchTree<TKey, TData>::Remove(
+void CBinarySearchTree<TKey, TData>::Remove(
     const TKey& key)
 {
     this->RemoveHelper(key, this->mRoot);
-    return *this;
 }
 
 // 後順走査により2分探索木のノードを全て削除

@@ -17,23 +17,6 @@
 
 using namespace Algorithm1Assignment1::Cpp;
 
-#if 0
-// ƒJƒ^ƒ‰ƒ“”‚ÌŒvZ
-int CatalanNumber(int n)
-{
-    if (n <= 1) {
-        return 1;
-    } else {
-        int result = 0;
-
-        for (int k = 0; k < n; ++k)
-            result += CatalanNumber(k) * CatalanNumber(n - k - 1);
-
-        return result;
-    }
-}
-#endif
-
 int main(int argc, char** argv)
 {
 #if defined(_MSC_VER)
