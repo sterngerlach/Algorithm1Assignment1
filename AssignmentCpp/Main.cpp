@@ -9,7 +9,9 @@
 #include <sstream>
 #include <vector>
 
+#if defined(_MSC_VER)
 #include <crtdbg.h>
+#endif
 
 #include "Utility.hpp"
 
@@ -34,7 +36,9 @@ int CatalanNumber(int n)
 
 int main(int argc, char** argv)
 {
+#if defined(_MSC_VER)
     _CrtSetDbgFlag(_CRTDBG_LEAK_CHECK_DF | _CRTDBG_ALLOC_MEM_DF);
+#endif
 
     --argc;
     ++argv;
