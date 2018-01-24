@@ -19,7 +19,7 @@ struct Node {
     Node() = default;
     Node(const TKey& key, const TData& data, Node* pLeft = nullptr, Node* pRight = nullptr) :
         mKey(key), mData(data), mLeft(pLeft), mRight(pRight) { }
-    virtual ~Node() = default;
+    ~Node() = default;
 
     TKey    mKey;
     TData   mData;

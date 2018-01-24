@@ -13,7 +13,6 @@ CBinarySearchTreeEx::~CBinarySearchTreeEx()
 {
     if (this->mAllocatedNodes) {
         delete[] this->mAllocatedNodes;
-        this->mAllocatedNodes = nullptr;
         this->mDataCount = 0;
     }
 }
@@ -23,7 +22,6 @@ void CBinarySearchTreeEx::SetDataCount(int dataCount)
 {
     if (this->mAllocatedNodes) {
         delete[] this->mAllocatedNodes;
-        this->mAllocatedNodes = nullptr;
         this->mDataCount = 0;
     }
 
@@ -41,15 +39,10 @@ void CBinarySearchTreeEx::InsertHelper(const int& key, const int& data, Node<int
 {
     if (pNode == nullptr) {
         pNode = &(this->mAllocatedNodes[key - 1]);
-    } else if (key == pNode->mKey) {
-        // 二重登録
-        assert(false);
+    } else if (key < pNode->mKey) {
+        this->InsertHelper(key, data, pNode->mLeft);
     } else {
-        if (key < pNode->mKey) {
-            this->InsertHelper(key, data, pNode->mLeft);
-        } else {
-            this->InsertHelper(key, data, pNode->mRight);
-        }
+        this->InsertHelper(key, data, pNode->mRight);
     }
 }
 
@@ -65,26 +58,28 @@ void CBinarySearchTreeEx::RemoveNode(Node<int, int>*& pNode)
     } else if (pNode->mRight == nullptr) {
         pNode = pNode->mLeft;
     } else {
-        std::function<void(Node<int, int>*&, int&)> ProcessNodeWithMaxValue;
-
-        ProcessNodeWithMaxValue =
-            [&ProcessNodeWithMaxValue](Node<int, int>*& pMaxNode, int& maxNodeKey) {
-            if (pMaxNode->mRight == nullptr) {
-                maxNodeKey = pMaxNode->mKey;
-                pMaxNode = pMaxNode->mLeft;
-            } else {
-                ProcessNodeWithMaxValue(pMaxNode->mRight, maxNodeKey);
-            }
-        };
-
         int maxNodeKey;
-        ProcessNodeWithMaxValue(pNode->mLeft, maxNodeKey);
+        int maxNodeData;
+        this->RemoveMaxNode(pNode, maxNodeKey, maxNodeData);
         pNode = &(this->mAllocatedNodes[maxNodeKey - 1]);
     }
 }
 
+// 与えられたノードをルートとする部分木から最大の要素を探し,
+// その要素のキーとデータを保存してから, その要素自身を左側の子で置き換える
+void CBinarySearchTreeEx::RemoveMaxNode(Node<int, int>*& pNode, int& maxNodeKey, int& maxNodeData)
+{
+    if (pNode->mRight == nullptr) {
+        maxNodeKey = pNode->mKey;
+        maxNodeData = pNode->mData;
+        pNode = pNode->mLeft;
+    } else {
+        this->RemoveMaxNode(pNode->mRight, maxNodeKey, maxNodeData);
+    }
+}
+
 // 後順走査により2分探索木のノードを全て削除
-void CBinarySearchTreeEx::DestroyHelper(Node<int, int>*& pNode)
+void CBinarySearchTreeEx::DestroyHelper(Node<int, int>*& /*pNode*/)
 {
     this->mRoot = nullptr;
 

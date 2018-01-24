@@ -26,6 +26,7 @@ public:
 protected:
     virtual void InsertHelper(const int& key, const int& data, Node<int, int>*& pNode) override;
     virtual void RemoveNode(Node<int, int>*& pNode) override;
+    virtual void RemoveMaxNode(Node<int, int>*& pNode, int& maxNodeKey, int& maxNodeData) override;
     virtual void DestroyHelper(Node<int, int>*& pNode) override;
 
 private:
