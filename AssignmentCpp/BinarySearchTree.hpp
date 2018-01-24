@@ -43,6 +43,7 @@ protected:
     virtual void InsertHelper(const TKey& key, const TData& data, Node<TKey, TData>*& pNode);
     virtual void RemoveHelper(const TKey& key, Node<TKey, TData>*& pNode);
     virtual void RemoveNode(Node<TKey, TData>*& pNode);
+    virtual void RemoveMaxNode(Node<TKey, TData>*& pNode, TKey& maxNodeKey, TData& maxNodeData);
     virtual void DestroyHelper(Node<TKey, TData>*& pNode);
     virtual int HeightHelper(Node<TKey, TData>* pNode) const;
     virtual bool IsAVLTreeHelper(Node<TKey, TData>* pNode) const;
@@ -214,38 +215,37 @@ void CBinarySearchTree<TKey, TData>::RemoveNode(
         pTmp = nullptr;
     } else {
         // 現在のノードに左右両方の子がいる場合, ノードを左側の部分木の最大の要素で置き換える
-
-        // 与えられたノードをルートとする部分木から最大の要素を探し,
-        // その要素のキーとデータを保存してから, その要素自身を左側の子で置き換える関数
-        std::function<void(Node<TKey, TData>*&, TKey&, TData&)> ProcessNodeWithMaxValue;
-
-        ProcessNodeWithMaxValue =
-            [&ProcessNodeWithMaxValue](Node<TKey, TData>*& pMaxNode, TKey& maxNodeKey, TData& maxNodeData) {
-            if (pMaxNode->mRight == nullptr) {
-                // 与えられたノードを頂点とする部分木から最大の要素が見つかった
-                // 最大の要素が持っていたキーとデータを保持
-                maxNodeKey = pMaxNode->mKey;
-                maxNodeData = pMaxNode->mData;
-
-                // 部分木の最大の要素をその左側の子で置き換える
-                Node<TKey, TData>* pTmp = pMaxNode;
-                pMaxNode = pMaxNode->mLeft;
-                delete pTmp;
-                pTmp = nullptr;
-            } else {
-                // 部分木から最大の要素を探索
-                ProcessNodeWithMaxValue(pMaxNode->mRight, maxNodeKey, maxNodeData);
-            }
-        };
-
         // 左側の部分木の中から最大の要素を探して, キーとデータを取得
         TKey maxNodeKey;
         TData maxNodeData;
-        ProcessNodeWithMaxValue(pNode->mLeft, maxNodeKey, maxNodeData);
+        this->RemoveMaxNode(pNode->mLeft, maxNodeKey, maxNodeData);
 
         // 最大の要素のキーとデータを, 現在のノードに上書き
         pNode->mKey = maxNodeKey;
         pNode->mData = maxNodeData;
+    }
+}
+
+// 与えられたノードをルートとする部分木から最大の要素を探し,
+// その要素のキーとデータを保存してから, その要素自身を左側の子で置き換える
+template <typename TKey, typename TData>
+void CBinarySearchTree<TKey, TData>::RemoveMaxNode(
+    Node<TKey, TData>*& pNode, TKey& maxNodeKey, TData& maxNodeData)
+{
+    if (pNode->mRight == nullptr) {
+        // 与えられたノードを頂点とする部分木から最大の要素が見つかった
+        // 最大の要素が持っていたキーとデータを保持
+        maxNodeKey = pNode->mKey;
+        maxNodeData = pNode->mData;
+
+        // 最大の要素をその左側の子で置き換える
+        Node<TKey, TData>* pTmp = pNode;
+        pNode = pNode->mLeft;
+        delete pTmp;
+        pTmp = nullptr;
+    } else {
+        // 部分木から最大の要素を探索
+        this->RemoveMaxNode(pNode->mRight, maxNodeKey, maxNodeData);
     }
 }
 
@@ -289,7 +289,7 @@ template <typename TKey, typename TData>
 bool CBinarySearchTree<TKey, TData>::IsAVLTreeHelper(
     Node<TKey, TData>* pNode) const
 {
-    // 単一のノードの場合は常にAVL木
+    // 葉ノードの場合は常にAVL木
     if (pNode->mLeft == nullptr && pNode->mRight == nullptr)
         return true;
 

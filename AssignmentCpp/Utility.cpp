@@ -214,7 +214,7 @@ void CalculateAverageHeightAndVarianceOfHeight(
     double& varianceOfHeightOfAVLTree,
     const std::vector<int>& heightOfAVLTree)
 {
-    auto accumulateVarianceOfHeight =
+    static auto accumulateVarianceOfHeight =
         [=](double dResult, int treeHeight, double dAverage) -> double {
         return dResult + std::pow(static_cast<double>(treeHeight) - dAverage, 2.0);
     };

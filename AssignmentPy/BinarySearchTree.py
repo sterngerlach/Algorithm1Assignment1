@@ -19,9 +19,11 @@ class BinarySearchTree():
         self.Destroy()
 
     def __str__(self):
+        """2分探索木を文字列表現に変換"""
         return self.ToString()
 
     def __contains__(self, item):
+        """2分探索木が指定されたキーを持つノードを含んでいるかどうか"""
         return self.Search(item) is not None
 
     def Search(self, key):
@@ -33,25 +35,21 @@ class BinarySearchTree():
         if isinstance(key, (list, tuple)):
             for item in key:
                 self.Insert(item, None)
-            return self
-
-        if self.mRoot is None:
-            # 頂点が無い場合はここで作成
-            self.mRoot = Node(key, data)
         else:
-            # 頂点を持つ場合は適切な場所を探して追加
-            self.InsertHelper(key, data, self.mRoot)
-
-        return self
+            if self.mRoot is None:
+                # ルートがない場合はここで作成
+                self.mRoot = Node(key, data, None, None, None)
+            else:
+                # 頂点を持つ場合は適切な場所を探して追加
+                self.InsertHelper(key, data, self.mRoot)
 
     def Remove(self, key):
         """指定されたキーを持つノードを2分探索木から削除"""
-        self.RemoveHelper(key, None, self.mRoot)
-        return self
-
+        self.RemoveHelper(key, self.mRoot)
+    
     def Destroy(self):
         """2分探索木のノードを全て削除"""
-        self.DestroyHelper(None, self.mRoot)
+        self.DestroyHelper(self.mRoot)
 
     def Height(self):
         """2分探索木の高さの計算"""
@@ -105,19 +103,19 @@ class BinarySearchTree():
             raise ValueError("Key '{0}' already registered".format(key))
         else:
             if key < node.mKey:
-                if node.mLeft is None:
-                    # 与えられたキーとデータを持つノードを作成
-                    node.mLeft = Node(key, data)
-                else:
+                if node.HasLeftChild():
                     self.InsertHelper(key, data, node.mLeft)
-            else:
-                if node.mRight is None:
-                    # 与えられたキーとデータを持つノードを作成
-                    node.mRight = Node(key, data)
                 else:
+                    # 与えられたキーとデータを持つノードを作成
+                    node.mLeft = Node(key, data, None, None, node)
+            else:
+                if node.HasRightChild():
                     self.InsertHelper(key, data, node.mRight)
+                else:
+                    # 与えられたキーとデータを持つノードを作成
+                    node.mRight = Node(key, data, None, None, node)
 
-    def RemoveHelper(self, key, parentNode, node):
+    def RemoveHelper(self, key, node):
         """指定されたキーを持つノードを2分探索木から削除
         BinarySearchTree::Remove() のヘルパーメソッド"""
         if node is None:
@@ -126,95 +124,93 @@ class BinarySearchTree():
         elif key != node.mKey:
             if key < node.mKey:
                 # 左の子を探す
-                self.RemoveHelper(key, node, node.mLeft)
+                self.RemoveHelper(key, node.mLeft)
             else:
                 # 右の子を探す
-                self.RemoveHelper(key, node, node.mRight)
+                self.RemoveHelper(key, node.mRight)
         else:
             # 削除すべきノードが見つかった
-            self.RemoveNode(parentNode, node)
+            self.RemoveNode(node)
 
-    def RemoveNode(self, parentNode, node):
+    def RemoveNode(self, node):
         """指定されたノードを2分探索木から削除"""
         if node is None:
             # 起こり得ない
             assert False
-        elif node.mLeft is None and node.mRight is None:
+        elif node.IsLeafNode():
             # 現在のノードが葉の場合は単に取り除くだけでよい
-            # この処理はNodeクラスが自身の親のノード, 子供の数を保持すれば簡単になる
-            if parentNode is None:
+            if node.IsRootNode():
                 # 2分探索木がルートしか持たない場合
                 self.mRoot = None
-            elif node.mKey < parentNode.mKey:
-                # 引数node自身にNoneを代入しても反映されないので親のノードから参照する
-                parentNode.mLeft = None
+            elif node.IsLeftChild():
+                # 自身を親から参照する必要があることに注意
+                node.mParent.mLeft = None
             else:
-                parentNode.mRight = None
-        elif node.mLeft is None:
+                node.mParent.mRight = None
+        elif not node.HasLeftChild():
             # 現在のノードに左側の子がいない場合, ノードを右側の子で置き換える
-            if parentNode is None:
-                # ルートを削除しようとしている場合
+            if node.IsRootNode():
+                self.mRoot.mRight.mParent = None
                 self.mRoot = self.mRoot.mRight
-            elif node.mKey < parentNode.mKey:
-                parentNode.mLeft = parentNode.mLeft.mRight
+            elif node.IsLeftChild():
+                node.mRight.mParent = node.mParent
+                node.mParent.mLeft = node.mRight
             else:
-                parentNode.mRight = parentNode.mRight.mRight
-        elif node.mRight is None:
+                node.mRight.mParent = node.mParent
+                node.mParent.mRight = node.mRight
+        elif not node.HasRightChild():
             # 現在のノードに右側の子がいない場合, ノードを左側の子で置き換える
-            if parentNode is None:
-                # ルートを削除しようとしている場合
+            if node.IsRootNode():
+                self.mRoot.mLeft.mParent = None
                 self.mRoot = self.mRoot.mLeft
-            elif node.mKey < parentNode.mKey:
-                parentNode.mLeft = parentNode.mLeft.mLeft
+            elif node.IsLeftChild():
+                node.mLeft.mParent = node.mParent
+                node.mParent.mLeft = node.mLeft
             else:
-                parentNode.mRight = parentNode.mRight.mRight
+                node.mLeft.mParent = node.mParent
+                node.mParent.mRight = node.mLeft
         else:
             # 現在のノードに左右両方の子がいる場合, ノードを左側の部分木の最大の要素で置き換える
-
-            # 与えられたノードをルートとする部分木から最大の要素を探し,
-            # その要素のキーとデータを保存してから, その要素自身を左側の子で置き換える
-            maxNodeParent = node
+            # 左側の部分木の最大の要素を探す
             maxNode = node.mLeft
 
-            # 左部分木から最大の要素を探索
-            while maxNode.mRight is not None:
-                maxNodeParent = maxNode
+            while maxNode.HasRightChild():
                 maxNode = maxNode.mRight
 
-            # 最大の要素が持っていたキーとデータを保持
-            maxNodeKey, maxNodeData = maxNode.mKey, maxNode.mData
+            # 左側の部分木の最大の要素が持っていたキーとデータを, 現在のノードに上書き
+            node.mKey = maxNode.mKey
+            node.mData = maxNode.mData
 
-            # 部分木の最大の要素をその左側の子で置き換える
-            if maxNode.mKey < maxNodeParent.mKey:
-                maxNodeParent.mLeft = maxNode.mLeft
+            # 左側の部分木の最大の要素をその左側の子で置き換える
+            if maxNode.HasLeftChild():
+                maxNode.mLeft.mParent = maxNode.mParent
+
+            if maxNode.IsLeftChild():
+                maxNode.mParent.mLeft = maxNode.mLeft
             else:
-                maxNodeParent.mRight = maxNode.mLeft
+                maxNode.mParent.mRight = maxNode.mLeft
 
-            # 最大の要素のキーとデータを, 現在のノードに上書き
-            node.mKey = maxNodeKey
-            node.mData = maxNodeData
-
-    def DestroyHelper(self, parentNode, node):
+    def DestroyHelper(self, node):
         """2分探索木のノードを全て削除
         BinarySearchTree::Destroy() のヘルパーメソッド"""
         if node is None:
             return
 
         # 最初に現在のノードの左側の子を削除
-        if node.mLeft is not None:
-            self.DestroyHelper(node, node.mLeft)
+        if node.HasLeftChild():
+            self.DestroyHelper(node.mLeft)
 
         # 次に現在のノードの右側の子を削除
-        if node.mRight is not None:
-            self.DestroyHelper(node, node.mRight)
+        if node.HasRightChild():
+            self.DestroyHelper(node.mRight)
 
         # 最後に自分を削除
-        if parentNode is None:
+        if node.IsRootNode():
             self.mRoot = None
-        elif node.mKey < parentNode.mKey:
-            parentNode.mLeft = None
+        elif node.IsLeftChild():
+            node.mParent.mLeft = None
         else:
-            parentNode.mRight = None
+            node.mParent.mRight = None
 
     def HeightHelper(self, node):
         """2分探索木の高さの計算
@@ -228,15 +224,15 @@ class BinarySearchTree():
         """2分探索木がAVL木かどうかの判定
         BinarySearchTree::IsAVLTree() のヘルパーメソッド"""
 
-        # 単一のノードの場合は常にAVL木
-        if node.mLeft is None and node.mRight is None:
+        # 葉ノードの場合は常にAVL木
+        if node.IsLeafNode():
             return True
 
         # 左部分木と右部分木の高さ
         leftTreeHeight = 0
         rightTreeHeight = 0
 
-        if node.mLeft is not None:
+        if node.HasLeftChild():
             if not self.IsAVLTreeHelper(node.mLeft):
                 return False
             else:
@@ -246,7 +242,7 @@ class BinarySearchTree():
                 # これに1を足し合わせて現在のノードを頂点とする部分木の高さを求める
                 leftTreeHeight = self.HeightHelper(node.mLeft) + 1
 
-        if node.mRight is not None:
+        if node.HasRightChild():
             if not self.IsAVLTreeHelper(node.mRight):
                 return False
             else:
@@ -268,17 +264,17 @@ class BinarySearchTree():
         # 2分探索木の文字列表現
         strExpression = str(node.mKey)
 
-        if node.mLeft is None and node.mRight is None:
+        if node.IsLeafNode():
             return strExpression
 
         strExpression += "("
 
-        if node.mLeft is not None:
+        if node.HasLeftChild():
             strExpression += self.ToStringHelper(node.mLeft)
 
         strExpression += ","
 
-        if node.mRight is not None:
+        if node.HasRightChild():
             strExpression += self.ToStringHelper(node.mRight)
 
         strExpression += ")"
@@ -291,11 +287,11 @@ class BinarySearchTree():
 
         if node is None:
             return 0
-        elif (node.mLeft is not None) and (node.mRight is not None):
+        elif node.HasBothChildren():
             return 1 + self.NodeCountHelper(node.mLeft) + self.NodeCountHelper(node.mRight)
-        elif node.mLeft is not None:
+        elif node.HasLeftChild():
             return 1 + self.NodeCountHelper(node.mLeft)
-        elif node.mRight is not None:
+        elif node.HasRightChild():
             return 1 + self.NodeCountHelper(node.mRight)
         else:
             return 1
@@ -304,7 +300,7 @@ class BinarySearchTree():
         """2分探索木の最大のキー値を取得
         BinarySearchTree::MaxNodeValue() のヘルパーメソッド"""
 
-        if node.mRight is not None:
+        if node.HasRightChild():
             return self.MaxNodeValueHelper(node.mRight)
         else:
             return node.mKey
@@ -313,7 +309,7 @@ class BinarySearchTree():
         """2分探索木の最小のキー値を取得
         BinarySearchTree::MinNodeValue() のヘルパーメソッド"""
 
-        if node.mLeft is not None:
+        if node.HasLeftChild():
             return self.MinNodeValueHelper(node.mLeft)
         else:
             return node.mKey
