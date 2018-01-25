@@ -310,7 +310,7 @@ bool CBinarySearchTree<TKey, TData>::IsAVLTreeHelper(
 {
     // 葉ノードの場合は常にAVL木
     if (pNode->mLeft == nullptr && pNode->mRight == nullptr)
-    return true;
+        return true;
 
     int nLeftHeight = 0;
     int nRightHeight = 0;
@@ -339,7 +339,7 @@ bool CBinarySearchTree<TKey, TData>::IsAVLTreeHelper(
         }
     }
 
-    左部分木と右部分木の高さが1以下であればAVL木
+    // 左部分木と右部分木の高さが1以下であればAVL木
     return (std::abs(nLeftHeight - nRightHeight) <= 1);
 }
 */
