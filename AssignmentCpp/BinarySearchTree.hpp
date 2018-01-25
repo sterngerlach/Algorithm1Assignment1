@@ -289,9 +289,28 @@ template <typename TKey, typename TData>
 bool CBinarySearchTree<TKey, TData>::IsAVLTreeHelper(
     Node<TKey, TData>* pNode) const
 {
+    if (pNode == nullptr)
+        return true;
+
+    int nLeftHeight = (pNode->mLeft) ? (this->HeightHelper(pNode->mLeft) + 1) : 0;
+    int nRightHeight = (pNode->mRight) ? (this->HeightHelper(pNode->mRight) + 1) : 0;
+
+    if (std::abs(nLeftHeight - nRightHeight) > 1)
+        return false;
+    else
+        return this->IsAVLTreeHelper(pNode->mLeft) && this->IsAVLTreeHelper(pNode->mRight);
+}
+
+/*
+// 2分探索木がAVL木かどうかの判定
+// CBinarySearchTree::IsAVLTree() のヘルパー関数
+template <typename TKey, typename TData>
+bool CBinarySearchTree<TKey, TData>::IsAVLTreeHelper(
+    Node<TKey, TData>* pNode) const
+{
     // 葉ノードの場合は常にAVL木
     if (pNode->mLeft == nullptr && pNode->mRight == nullptr)
-        return true;
+    return true;
 
     int nLeftHeight = 0;
     int nRightHeight = 0;
@@ -320,9 +339,10 @@ bool CBinarySearchTree<TKey, TData>::IsAVLTreeHelper(
         }
     }
 
-    // 左部分木と右部分木の高さが1以下であればAVL木
+    左部分木と右部分木の高さが1以下であればAVL木
     return (std::abs(nLeftHeight - nRightHeight) <= 1);
 }
+*/
 
 // 2分探索木を文字列表現に変換
 // CBinarySearchTree::ToString() のヘルパー関数
