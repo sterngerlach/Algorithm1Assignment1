@@ -31,6 +31,38 @@ int CatalanNumber(int n)
     }
 }
 
+// フィボナッチ木に含まれるノード数の計算
+int FibonacciTreeNodeCount(int n)
+{
+    static std::vector<int> numOfNodes { 0, 1 };
+
+    if (n < numOfNodes.size())
+        return numOfNodes[n];
+
+    for (size_t i = numOfNodes.size(); i <= n; ++i)
+        numOfNodes.push_back(numOfNodes[i - 1] + numOfNodes[i - 2] + 1);
+
+    return numOfNodes[n];
+}
+
+// AVL木の判定が必要かどうか
+bool ShouldCheckAVLTree(int numOfNodes, int numOfLeft, int numOfRight)
+{
+    // numOfNodesは2分木に含まれるノード数
+    // numOfLeftは左部分木に含まれるノード数
+    // numOfRightは右部分木に含まれるノード数
+
+    // フィボナッチ木のノード数とnumOfNodesを比較
+    int n = 0;
+    while (numOfNodes > FibonacciTreeNodeCount(++n));
+
+    // nが行き過ぎるので1つ戻す
+    --n;
+
+    // n - 2番目のフィボナッチ木のノード数と, numOfLeftとnumOfRightのうちどちらか小さい方とを比較
+    return FibonacciTreeNodeCount(n - 2) <= std::min(numOfLeft, numOfRight);
+}
+
 // ランダムな1からnまでの自然数の順列を生成
 std::vector<int> GenerateRandomPermutation(int n)
 {
@@ -542,6 +574,7 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
     double& varianceOfHeightOfAVLTree)
 {
     // データの生成と同時に木の高さを調べることで, メモリ使用量を削減
+    // 左右の部分木に含まれるノード数をみて, AVL木の判定が必要かどうかを調べる処理の追加
 
     // 高さと平均データ
     numOfBinarySearchTree = 0;
@@ -582,17 +615,25 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
             int tmpNumOfBinarySearchTree = 0;
             int tmpNumOfAVLTree = 0;
             int treeHeight;
+            bool checkAVLTree;
 
             // 入力データ列の生成
             for (int i = minRootNodeValue; i <= maxRootNodeValue; ++i) {
                 std::vector<std::vector<int>> leftTrees;
+                leftTrees.reserve(CatalanNumber(i - 1));
                 GenerateDataSequencesHelper(1, i - 1, leftTrees);
 
                 std::vector<std::vector<int>> rightTrees;
+                rightTrees.reserve(CatalanNumber(dataCount - i));
                 GenerateDataSequencesHelper(i + 1, dataCount, rightTrees);
 
-                for (auto& leftTree : leftTrees) {
-                    for (auto& rightTree : rightTrees) {
+                // AVL木の判定が必要かどうか
+                mutex.lock();
+                checkAVLTree = ShouldCheckAVLTree(dataCount, i - 1, dataCount - i);
+                mutex.unlock();
+
+                for (const auto& leftTree : leftTrees) {
+                    for (const auto& rightTree : rightTrees) {
                         // 2分探索木に根ノードを追加
                         tmpBinarySearchTree.Insert(i);
 
@@ -608,7 +649,7 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
                         tmpHeightOfTree.push_back(treeHeight);
                         ++tmpNumOfBinarySearchTree;
 
-                        if (tmpBinarySearchTree.IsAVLTree()) {
+                        if (checkAVLTree && tmpBinarySearchTree.IsAVLTree()) {
                             tmpHeightOfAVLTree.push_back(treeHeight);
                             ++tmpNumOfAVLTree;
                         }
@@ -619,13 +660,15 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
             }
 
             // 値の更新
-            std::lock_guard<std::mutex> lockGuard { mutex };
+            mutex.lock();
 
             numOfBinarySearchTree += tmpNumOfBinarySearchTree;
             numOfAVLTree += tmpNumOfAVLTree;
 
             heightOfTree.insert(std::end(heightOfTree), std::begin(tmpHeightOfTree), std::end(tmpHeightOfTree));
             heightOfAVLTree.insert(std::end(heightOfAVLTree), std::begin(tmpHeightOfAVLTree), std::end(tmpHeightOfAVLTree));
+
+            mutex.unlock();
         }));
     }
 
