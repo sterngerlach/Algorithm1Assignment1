@@ -681,6 +681,125 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
         averageHeightOfAVLTree, varianceOfHeightOfAVLTree, heightOfAVLTree);
 }
 
+// 指定されたノード数の相異なる2分探索木の高さの平均と分散の計算 (バージョン4) (マルチスレッド)
+void CalculateBinarySearchTreeHeight4MultiThreaded(
+    int dataCount,
+    std::intmax_t& numOfBinarySearchTree,
+    double& averageHeight,
+    double& varianceOfHeight,
+    std::intmax_t& numOfAVLTree,
+    double& averageHeightOfAVLTree,
+    double& varianceOfHeightOfAVLTree)
+{
+    // ノード数が奇数の場合も対称性を利用して調べる2分木の個数を削減
+
+    // 個々の形状の2分探索木の高さを保持
+    std::vector<int> heightOfTree;
+    std::vector<int> heightOfAVLTree;
+
+    // スレッド数
+    const unsigned int numOfThreads = std::thread::hardware_concurrency();
+
+    std::vector<std::thread> calcThreads;
+    calcThreads.reserve(numOfThreads);
+
+    std::mutex mutex;
+    unsigned int minRootNodeValue = 0;
+    unsigned int maxRootNodeValue = 0;
+    unsigned int maxDataCount = (dataCount % 2 == 0) ? (dataCount / 2) : (dataCount / 2 + 1);
+
+    // スレッドの生成
+    for (unsigned int i = 0; i < numOfThreads; ++i) {
+        // 各スレッドにタスクを割り当て
+        // 各スレッドが担当する根ノードの値の範囲
+        minRootNodeValue = maxRootNodeValue + 1;
+        maxRootNodeValue = (i == numOfThreads - 1) ? maxDataCount :
+            (i + 1) * static_cast<int>(std::ceil((static_cast<double>(maxDataCount) / static_cast<double>(numOfThreads))));
+
+        calcThreads.push_back(std::thread([&, minRootNodeValue, maxRootNodeValue]() {
+            // 一時的なデータ
+            CBinarySearchTreeEx tmpBinarySearchTree;
+            tmpBinarySearchTree.SetDataCount(dataCount);
+
+            std::vector<int> tmpHeightOfTree;
+            std::vector<int> tmpHeightOfAVLTree;
+            int treeHeight;
+            bool checkAVLTree;
+
+            // 入力データ列の生成
+            for (int i = minRootNodeValue; i <= maxRootNodeValue; ++i) {
+                std::vector<std::vector<int>> leftTrees;
+                leftTrees.reserve(CatalanNumber(i - 1));
+                GenerateDataSequencesHelper(1, i - 1, leftTrees);
+
+                std::vector<std::vector<int>> rightTrees;
+                rightTrees.reserve(CatalanNumber(dataCount - i));
+                GenerateDataSequencesHelper(i + 1, dataCount, rightTrees);
+
+                // AVL木の判定が必要かどうか
+                mutex.lock();
+                checkAVLTree = ShouldCheckAVLTree(dataCount, i - 1, dataCount - i);
+                mutex.unlock();
+
+                for (const auto& leftTree : leftTrees) {
+                    for (const auto& rightTree : rightTrees) {
+                        // 2分探索木に根ノードを追加
+                        tmpBinarySearchTree.Insert(i);
+
+                        // 2分探索木に左部分木を追加
+                        for (const auto n : leftTree)
+                            tmpBinarySearchTree.Insert(n);
+
+                        // 2分探索木に右部分木を追加
+                        for (const auto n : rightTree)
+                            tmpBinarySearchTree.Insert(n);
+
+                        treeHeight = tmpBinarySearchTree.Height();
+
+                        if ((dataCount % 2 == 0) || (i == maxDataCount)) {
+                            tmpHeightOfTree.push_back(treeHeight);
+                        } else {
+                            tmpHeightOfTree.push_back(treeHeight);
+                            tmpHeightOfTree.push_back(treeHeight);
+                        }
+
+                        if (checkAVLTree && tmpBinarySearchTree.IsAVLTree()) {
+                            if ((dataCount % 2 == 0) || (i == maxDataCount)) {
+                                tmpHeightOfAVLTree.push_back(treeHeight);
+                            } else {
+                                tmpHeightOfAVLTree.push_back(treeHeight);
+                                tmpHeightOfAVLTree.push_back(treeHeight);
+                            }
+                        }
+
+                        tmpBinarySearchTree.Destroy();
+                    }
+                }
+            }
+
+            // 値の更新
+            mutex.lock();
+
+            heightOfTree.insert(std::end(heightOfTree), std::begin(tmpHeightOfTree), std::end(tmpHeightOfTree));
+            heightOfAVLTree.insert(std::end(heightOfAVLTree), std::begin(tmpHeightOfAVLTree), std::end(tmpHeightOfAVLTree));
+
+            mutex.unlock();
+        }));
+    }
+
+    // スレッドの終了を待機
+    std::for_each(std::begin(calcThreads), std::end(calcThreads), [](std::thread& calcThread) { calcThread.join(); });
+
+    // 高さと平均データ
+    numOfBinarySearchTree = heightOfTree.size();
+    numOfAVLTree = heightOfAVLTree.size();
+
+    // 2分探索木の高さの平均と分散の計算
+    CalculateAverageHeightAndVarianceOfHeight(
+        averageHeight, varianceOfHeight, heightOfTree,
+        averageHeightOfAVLTree, varianceOfHeightOfAVLTree, heightOfAVLTree);
+}
+
 } // namespace Cpp
 
 } // namespace Algorithm1Assignment1

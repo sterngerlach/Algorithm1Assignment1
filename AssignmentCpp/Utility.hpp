@@ -80,6 +80,16 @@ void CalculateBinarySearchTreeHeight3MultiThreaded(
     double& averageHeightOfAVLTree,
     double& varianceOfHeightOfAVLTree);
 
+// 指定されたノード数の相異なる2分探索木の高さの平均と分散の計算 (バージョン4) (マルチスレッド)
+void CalculateBinarySearchTreeHeight4MultiThreaded(
+    int dataCount,
+    std::intmax_t& numOfBinarySearchTree,
+    double& averageHeight,
+    double& varianceOfHeight,
+    std::intmax_t& numOfAVLTree,
+    double& averageHeightOfAVLTree,
+    double& varianceOfHeightOfAVLTree);
+
 } // namespace Cpp
 
 } // namespace Algorithm1Assignment1

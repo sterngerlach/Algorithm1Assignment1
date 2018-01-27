@@ -148,7 +148,7 @@ int main(int argc, char** argv)
         // データ数を変えて2分探索木の高さの平均と分散を計算
         for (int i = 1; i <= maxNumOfNodes; ++i) {
             if (i <= 9) {
-                CalculateBinarySearchTreeHeight(
+                CalculateBinarySearchTreeHeight2(
                     i,
                     numOfBinarySearchTree,
                     averageHeight,
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
                     varianceOfHeightOfAVLTree);
             } else {
                 // iが10以上の場合はマルチスレッド版を実行
-                CalculateBinarySearchTreeHeight3MultiThreaded(
+                CalculateBinarySearchTreeHeight4MultiThreaded(
                     i,
                     numOfBinarySearchTree,
                     averageHeight,
